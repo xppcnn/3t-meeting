@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -9,38 +8,48 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
 import { z } from "zod";
-import Link from "next/link";
+import { toast } from "sonner";
+import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { loginFormType } from "@/actions/auth/types";
+import { Button } from "@/components/ui/button";
+import { registerFormSchema } from "@/actions/auth/schema";
+import { registerFormType } from "@/actions/auth/types";
 import { useAction } from "@/hooks/useAction";
-import { login } from "@/actions/auth";
+import { register } from "@/actions/auth";
 
-const formSchema = z.object({
-  email: z.string().email({
-    message: "请输入正确的邮箱格式",
-  }),
-  password: z.string().min(1, {
-    message: "请输入密码",
-  }),
-});
+const formSchema = registerFormSchema.refine(
+  (data) => data.password === data.confirmPassword,
+  {
+    message: "密码不一致",
+    path: ["confirmPassword"], // 错误路径
+  }
+);
 
-const LoginForm = () => {
-  const { execute } = useAction(login);
-  const form = useForm<loginFormType>({
+const RegisterForm = () => {
+  const form = useForm<registerFormType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
+      confirmPassword: "",
+    },
+  });
+
+  const { execute } = useAction(register, {
+    onError(error) {
+      toast.error(error);
+    },
+    onSuccess(data) {
+      toast.success("用户注册成功");
     },
   });
 
   const onSubmit = async () => {
     const flag = await form.trigger();
     if (flag) {
-      const values = form.getValues();
+      const values: registerFormType = form.getValues();
       execute(values);
     }
   };
@@ -53,7 +62,7 @@ const LoginForm = () => {
           name="email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>邮箱</FormLabel>
+              <FormLabel>账号</FormLabel>
               <FormControl>
                 <Input placeholder="请输入邮箱" {...field} />
               </FormControl>
@@ -68,7 +77,20 @@ const LoginForm = () => {
             <FormItem>
               <FormLabel>密码</FormLabel>
               <FormControl>
-                <Input placeholder="******" {...field} />
+                <Input placeholder="******" {...field} type="password" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="confirmPassword"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>确认密码</FormLabel>
+              <FormControl>
+                <Input placeholder="******" {...field} type="password" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -76,18 +98,10 @@ const LoginForm = () => {
         />
       </form>
       <Button type="submit" className="w-full mt-4 mb-2" onClick={onSubmit}>
-        登录
+        注册
       </Button>
-      <div className="flex justify-between text-xs">
-        <Link href="/auth/register" className="text-[#7b818f]">
-          忘记密码
-        </Link>
-        <Link href="/auth/register" className="text-[#006fff]">
-          免费注册
-        </Link>
-      </div>
     </Form>
   );
 };
 
-export default LoginForm;
+export default RegisterForm;

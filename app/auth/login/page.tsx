@@ -1,8 +1,13 @@
 import React from "react";
-import LoginWrapper from "./_components/LoginWrapper";
+import CardWrapper from "@/components/auth/CardWrapper";
+import LoginForm from "./_components/LoginForm";
 
 const LoginPage = () => {
-  return <LoginWrapper />;
+  return (
+    <CardWrapper label="登录">
+      <LoginForm />
+    </CardWrapper>
+  );
 };
 
 export default LoginPage;
