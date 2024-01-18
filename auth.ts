@@ -5,6 +5,7 @@ import { authConfig as config } from "./auth.config";
 import prisma from "@/lib/prisma";
 export const authConfig = {
   ...config,
+  debug: true, 
   pages: {
     signIn: "/auth/login",
     error: "/auth/error",
