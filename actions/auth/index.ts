@@ -12,25 +12,27 @@ import prisma from "@/lib/prisma";
 import { createSafeAction } from "@/lib/createSafeAction";
 import { loginFormSchema, registerFormSchema } from "./schema";
 import { signIn } from "@/auth";
+import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 
 const loginHandler = async (
   data: loginFormType
 ): Promise<loginFormReturnType> => {
   const { email, password } = data;
+  console.log("🚀 ~ file: index.ts:21 ~ data:", data);
   const user = await getUserByEmail(email);
+  console.log("🚀 ~ file: index.ts:23 ~ user:", user);
   if (!user) {
     return {
       error: "用户不存在",
     };
   }
   const passwordPass = await bcrypt.compare(password, user.password!);
-  console.log("🚀 ~ file: index.ts:27 ~ passwordPass:", passwordPass);
   if (passwordPass) {
     try {
       await signIn("credentials", {
         email,
         password,
-        redirectTo: "/user-center",
+        redirectTo: DEFAULT_LOGIN_REDIRECT,
       });
       return {
         data: user,
@@ -39,9 +41,9 @@ const loginHandler = async (
       if (error instanceof AuthError) {
         switch (error.type) {
           case "CredentialsSignin":
-            return { error: "Invalid credentials!" };
+            return { error: "账号密码错误" };
           default:
-            return { error: "Something went wrong!" };
+            return { error: "服务器错误!" };
         }
       }
       throw error;

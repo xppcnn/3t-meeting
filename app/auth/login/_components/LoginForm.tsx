@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { z } from "zod";
+import { toast } from "sonner";
 import Link from "next/link";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -28,7 +29,11 @@ const formSchema = z.object({
 });
 
 const LoginForm = () => {
-  const { execute } = useAction(login);
+  const { execute } = useAction(login, {
+    onError(error) {
+      toast.error(error);
+    },
+  });
   const form = useForm<loginFormType>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,7 +60,7 @@ const LoginForm = () => {
             <FormItem>
               <FormLabel>邮箱</FormLabel>
               <FormControl>
-                <Input placeholder="请输入邮箱" {...field} />
+                <Input placeholder="请输入邮箱" {...field} type="email"/>
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -68,7 +73,7 @@ const LoginForm = () => {
             <FormItem>
               <FormLabel>密码</FormLabel>
               <FormControl>
-                <Input placeholder="******" {...field} />
+                <Input placeholder="******" {...field} type="password" />
               </FormControl>
               <FormMessage />
             </FormItem>
