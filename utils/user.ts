@@ -18,3 +18,21 @@ export const getUserByEmail = async (email: string): Promise<User | null> => {
     return null;
   }
 };
+
+/**
+ * 根据id查找用户
+ * @param id
+ * @returns
+ */
+export const getUserById = async (id: string): Promise<User | null> => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        id,
+      },
+    });
+    return user;
+  } catch (error) {
+    return null;
+  }
+};

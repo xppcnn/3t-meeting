@@ -30,6 +30,10 @@ model Account {
   @@map("account")
 }
 
+enum UserRole {
+  ADMIN
+  USER
+}
 
 model User {
   id            String    @id @default(uuid())
@@ -39,6 +43,7 @@ model User {
   image         String?
   password      String?
   accounts      Account[]
+  role          UserRole  @default(USER)
 
   @@map("user")
 }
