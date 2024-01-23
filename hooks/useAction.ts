@@ -6,8 +6,8 @@ type Action<TInput, TOutput> = (
 ) => Promise<ActionState<TInput, TOutput>>;
 
 interface UseActionOptions<TOutput> {
-  onSuccess?: (data: TOutput) => void;
-  onError?: (error: string) => void;
+  onSuccess?: (data: TOutput | null, message?: string | null) => void;
+  onError?: (error: string | null) => void;
   onComplete?: () => void;
 }
 
@@ -18,7 +18,7 @@ export const useAction = <TInput, TOutput>(
   const [fieldErrors, setFieldErrors] = useState<FieldErrors<TInput> | null>(
     null
   );
-  const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [data, setData] = useState<TOutput | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -30,15 +30,19 @@ export const useAction = <TInput, TOutput>(
         if (!result) {
           return;
         }
-
-        setFieldErrors(result.fieldErrors || null);
-        if (result.error) {
-          setError(result.error);
-          options?.onError?.(result.error);
+        if (result.code === 400) {
+          setFieldErrors(result.fieldErrors || null);
+        } else {
+          setFieldErrors(null);
         }
-        if (result.data) {
+        if (result.code === 200) {
           setData(result.data);
-          options?.onSuccess?.(result.data);
+          setMessage(result.message);
+          options?.onSuccess?.(result.data, result.message);
+        }
+        if (result.code === 201) {
+          setMessage(result.message);
+          options?.onError?.(result.message);
         }
       } finally {
         setIsLoading(false);
@@ -50,12 +54,12 @@ export const useAction = <TInput, TOutput>(
   const reset = useCallback(() => {
     setData(null);
     setIsLoading(false);
-    setError(null);
+    setMessage(null);
     setFieldErrors(null);
   }, []);
   return {
     execute,
-    error,
+    message,
     data,
     fieldErrors,
     isLoading,

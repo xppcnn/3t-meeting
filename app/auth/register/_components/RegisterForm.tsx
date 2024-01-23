@@ -41,8 +41,8 @@ const RegisterForm = () => {
     onError(error) {
       toast.error(error);
     },
-    onSuccess(data) {
-      toast.success("用户注册成功");
+    onSuccess(data, msg) {
+      toast.success(msg);
     },
   });
 

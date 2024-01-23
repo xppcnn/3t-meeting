@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -18,6 +18,8 @@ import { useForm } from "react-hook-form";
 import { loginFormType } from "@/actions/auth/types";
 import { useAction } from "@/hooks/useAction";
 import { login } from "@/actions/auth";
+import FormError from "@/components/FormError";
+import { useSearchParams } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -29,9 +31,18 @@ const formSchema = z.object({
 });
 
 const LoginForm = () => {
+  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const urlError =
+    searchParams.get("error") === "OAuthAccountNotLinked"
+      ? "该邮箱已被其他登录方式使用"
+      : "";
   const { execute } = useAction(login, {
     onError(error) {
-      toast.error(error);
+      setError(error);
+    },
+    onSuccess(data, msg) {
+      toast.info(msg);
     },
   });
   const form = useForm<loginFormType>({
@@ -60,7 +71,7 @@ const LoginForm = () => {
             <FormItem>
               <FormLabel>邮箱</FormLabel>
               <FormControl>
-                <Input placeholder="请输入邮箱" {...field} type="email"/>
+                <Input placeholder="请输入邮箱" {...field} type="email" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -79,6 +90,7 @@ const LoginForm = () => {
             </FormItem>
           )}
         />
+        <FormError message={error || urlError} />
       </form>
       <Button type="submit" className="w-full mt-4 mb-2" onClick={onSubmit}>
         登录

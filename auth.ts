@@ -18,7 +18,31 @@ export const authConfig = {
   session: {
     strategy: "jwt",
   },
+  events: {
+    async linkAccount({ user }) {
+      await prisma.user.update({
+        where: { id: user.id },
+        data: {
+          emailVerified: new Date(),
+        },
+      });
+    },
+  },
   callbacks: {
+    async signIn({ user, account }) {
+      if (account?.provider !== "credentials") {
+        return true;
+      }
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          email: user.email,
+        },
+      });
+      if (!existingUser?.emailVerified) {
+        return false;
+      }
+      return true;
+    },
     async session({ session, token }) {
       if (token.sub && session.user) {
         session.user.id = token.sub;
