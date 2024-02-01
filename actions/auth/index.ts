@@ -23,6 +23,7 @@ import { generateVerificationToken } from "@/lib/tokens";
 import { ResponseError, ResponseOk } from "@/lib/actionResponse";
 import { sendVerificationEmail } from "@/lib/email";
 import { getVerificationTokenByToken } from "@/utils/verificationToken";
+import { generateMeetingCode } from "@/lib/utils";
 
 const loginHandler = async (
   data: loginFormType
@@ -81,6 +82,7 @@ const registerHandler = async (
     data: {
       email,
       password: passwordHash,
+      meetingCode: generateMeetingCode() // todo 没保证唯一性
     },
   });
   const verificationToken = await generateVerificationToken(email);
@@ -112,6 +114,7 @@ const newVerificationHandler = async (
     data: {
       emailVerified: new Date(),
       email: existingToken.email,
+      meetingCode: generateMeetingCode() // todo 没保证唯一性
     },
   });
   await prisma.verificationToken.delete({

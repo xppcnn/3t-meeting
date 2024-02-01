@@ -24,3 +24,13 @@ export function findParentPath(data: MenuType[], path: string) {
   findPath(data, "");
   return parentPath;
 }
+
+export function generateMeetingCode() {
+  const characters = '0123456789';
+  let result = '';
+  const charactersLength = characters.length;
+  for (let i = 0; i < 12; i++) {
+      result += characters.charAt(Math.floor(Math.random() * charactersLength));
+  }
+  return result;
+}

@@ -42,6 +42,7 @@ model User {
   emailVerified DateTime? @map("email_verified")
   image         String?
   password      String?
+  meetingCode   String    @map("meeting_code") @unique
   accounts      Account[]
   role          UserRole  @default(USER)
 

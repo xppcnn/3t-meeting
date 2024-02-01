@@ -9,7 +9,7 @@ const SideBar = () => {
   const collapsed = useSideBar((state) => state.collapsed);
   const onCollapsed = useSideBar((state) => state.changeCollapsed);
   return (
-    <nav className="h-full min-w-0 bg-white shadow-md">
+    <nav className="h-full min-w-0 bg-white shadow-md transition-[width]">
       <nav className="h-full">
         <ScrollArea className="h-[calc(100%-84px)] pt-6 pr-4 pl-4 w-fit">
           <Menu collapsed={collapsed} />
