@@ -4,6 +4,7 @@ declare module "next-auth" {
     user: {
       role?: string;
       isOAuth?: boolean;
+      meetingCode: string;
     } & DefaultSession["user"];
   }
 }

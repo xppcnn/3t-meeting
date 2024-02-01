@@ -55,6 +55,7 @@ export const authConfig = {
         session.user.email = token.email;
         session.user.isOAuth = token.isOAuth as boolean;
         session.user.image = token.image as string;
+        session.user.meetingCode = token.meetingCode as string;
       }
       return session;
     },
@@ -68,6 +69,7 @@ export const authConfig = {
       token.name = existUser.name;
       token.email = existUser.email;
       token.role = existUser.role;
+      token.meetingCode = existUser.meetingCode;
       if (existUser.image) {
         token.image = existUser.image;
       }
