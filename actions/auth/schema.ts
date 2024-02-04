@@ -10,6 +10,9 @@ export const loginFormSchema = z.object({
 });
 
 export const registerFormSchema = z.object({
+  name: z.string().min(1, {
+    message: "请输入用户名",
+  }),
   email: z.string().email({
     message: "请输入正确的邮箱格式",
   }),
@@ -23,4 +26,11 @@ export const registerFormSchema = z.object({
 
 export const newVerificationFormSchema = z.object({
   token: z.string(),
+});
+
+export const editNameFormSchema = z.object({
+  name: z.string().min(1, {
+    message: "用户名不得为空",
+  }),
+  userId: z.string()
 });

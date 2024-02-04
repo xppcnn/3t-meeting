@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  editNameFormSchema,
   loginFormSchema,
   newVerificationFormSchema,
   registerFormSchema,
@@ -18,3 +19,5 @@ export type newVerificationFormReturnType = ActionState<
   newVerificationFormType,
   null
 >;
+export type editNameFormType = z.infer<typeof editNameFormSchema>;
+export type editNameFormReturnType = ActionState<editNameFormType, User>;

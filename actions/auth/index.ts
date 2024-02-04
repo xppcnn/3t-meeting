@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs";
 import { AuthError } from "next-auth";
 import { getUserByEmail } from "@/utils/user";
 import {
+  editNameFormReturnType,
+  editNameFormType,
   loginFormReturnType,
   loginFormType,
   newVerificationFormReturnType,
@@ -13,6 +15,7 @@ import {
 import prisma from "@/lib/prisma";
 import { createSafeAction } from "@/lib/createSafeAction";
 import {
+  editNameFormSchema,
   loginFormSchema,
   newVerificationFormSchema,
   registerFormSchema,
@@ -20,10 +23,11 @@ import {
 import { signIn } from "@/auth";
 import { DEFAULT_LOGIN_REDIRECT } from "@/routes";
 import { generateVerificationToken } from "@/lib/tokens";
-import { ResponseError, ResponseOk } from "@/lib/actionResponse";
+import { ResponseBad, ResponseError, ResponseOk } from "@/lib/actionResponse";
 import { sendVerificationEmail } from "@/lib/email";
 import { getVerificationTokenByToken } from "@/utils/verificationToken";
 import { generateMeetingCode } from "@/lib/utils";
+import { revalidatePath } from "next/cache";
 
 const loginHandler = async (
   data: loginFormType
@@ -69,7 +73,7 @@ const loginHandler = async (
 const registerHandler = async (
   data: registerFormType
 ): Promise<registerFormReturnType> => {
-  const { email, password } = data;
+  const { email, password, name } = data;
   const user = await getUserByEmail(email);
   if (user) {
     return {
@@ -80,9 +84,10 @@ const registerHandler = async (
   const passwordHash = await bcrypt.hash(password, 10);
   const newUser = await prisma.user.create({
     data: {
+      name,
       email,
       password: passwordHash,
-      meetingCode: generateMeetingCode() // todo 没保证唯一性
+      meetingCode: generateMeetingCode(), // todo 没保证唯一性
     },
   });
   const verificationToken = await generateVerificationToken(email);
@@ -114,7 +119,7 @@ const newVerificationHandler = async (
     data: {
       emailVerified: new Date(),
       email: existingToken.email,
-      meetingCode: generateMeetingCode() // todo 没保证唯一性
+      meetingCode: generateMeetingCode(), // todo 没保证唯一性
     },
   });
   await prisma.verificationToken.delete({
@@ -123,9 +128,30 @@ const newVerificationHandler = async (
   return ResponseOk(null, "邮箱验证成功");
 };
 
+const editNameHandler = async (
+  data: editNameFormType
+): Promise<editNameFormReturnType> => {
+  const { userId, name } = data;
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!user) {
+    return ResponseError("该用户不存在");
+  }
+  const updated = await prisma.user.update({
+    where: { id: userId },
+    data: {
+      name,
+    },
+  });
+  revalidatePath("/user-center/person-info")
+  return ResponseOk(updated, "更新成功");
+};
+
 export const login = createSafeAction(loginFormSchema, loginHandler);
 export const register = createSafeAction(registerFormSchema, registerHandler);
 export const newVerification = createSafeAction(
   newVerificationFormSchema,
   newVerificationHandler
 );
+export const editName = createSafeAction(editNameFormSchema, editNameHandler);
