@@ -20,6 +20,7 @@ import { useAction } from "@/hooks/useAction";
 import { login } from "@/actions/auth";
 import FormError from "@/components/FormError";
 import { useSearchParams } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const formSchema = z.object({
   email: z.string().email({
@@ -104,6 +105,27 @@ const LoginForm = () => {
         </Link>
       </div>
     </Form>
+  );
+};
+
+export  function LoginFormSkeleton() {
+  return (
+    <div>
+      <form className="space-y-8">
+        <Skeleton className="h-5 w-full" />
+
+        <Skeleton className="h-5 w-full" />
+      </form>
+      <Button className="w-full mt-4 mb-2">登录</Button>
+      <div className="flex justify-between text-xs">
+        <Link href="/auth/register" className="text-[#7b818f]">
+          忘记密码
+        </Link>
+        <Link href="/auth/register" className="text-[#006fff]">
+          免费注册
+        </Link>
+      </div>
+    </div>
   );
 };
 

@@ -1,6 +1,7 @@
-import React from "react";
+// "use client";
+import React, { Suspense } from "react";
 import CardWrapper from "@/components/CardWrapper";
-import LoginForm from "./_components/LoginForm";
+import LoginForm, { LoginFormSkeleton } from "./_components/LoginForm";
 
 const LoginPage = () => {
   return (
@@ -10,7 +11,9 @@ const LoginPage = () => {
       backButtonUrl="/auth/register"
       showOthers
     >
-      <LoginForm />
+      <Suspense fallback={<LoginFormSkeleton />}>
+        <LoginForm />
+      </Suspense>
     </CardWrapper>
   );
 };
